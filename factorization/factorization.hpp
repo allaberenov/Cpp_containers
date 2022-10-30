@@ -12,7 +12,7 @@ std::vector<int> Factorize(int n) {
     }
     i++;
   }
-  if (a != 0 || a ! = 1) {
+  if (n!= 0 || n != 1) {
     a.push_back(n);
   }
   return a;
