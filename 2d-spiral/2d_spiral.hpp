@@ -1,11 +1,10 @@
-#include <iostream>
 int** MakeSpiral(int n) {
   int** a = new int*[n];
   for (int i = 0; i < n; i++) {
     a[i] = new int[n];
   }
   int counter = 0;
-  for(int 1 = 0; i < n; i++){
+  for(int i = 0; i < n; i++){
     for(int j = i; j < n - i - 1; j++){
       a[i][j] = ++counter;
     }
