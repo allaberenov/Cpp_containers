@@ -28,7 +28,7 @@ class RingBuffer {
     end = nullptr;
   }
 
-  size_t Size() const { return size; }
+  size_t Size() const { return curr_size; }
 
   bool Empty() const { return curr_size == 0; }
 
