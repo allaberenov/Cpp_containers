@@ -16,5 +16,5 @@ int* LowerBound(int* first, int* last, int val) {
       return first + middle;
     }
   }
-  return last;
+  return ++last;
 }
