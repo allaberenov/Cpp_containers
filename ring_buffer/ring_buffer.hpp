@@ -57,6 +57,7 @@ class RingBuffer {
     this->curr_size--;
     return true;
   }
+
   ~RingBuffer() {
     for (int i = 0; i < curr_size - 1; i++) {
       Node* temp = first;
