@@ -5,7 +5,7 @@
 using namespace std;
 
 class RingBuffer {
-public:
+ public:
   struct Node {
     int val;
     Node* next;
@@ -28,13 +28,9 @@ public:
     end = nullptr;
   }
 
-  size_t Size() const {
-    return size;
-  }
+  size_t Size() const { return size; }
 
-  bool Empty() const {
-    return curr_size == 0;
-  }
+  bool Empty() const { return curr_size == 0; }
 
   bool TryPush(int element) {
     if (curr_size == size) {
