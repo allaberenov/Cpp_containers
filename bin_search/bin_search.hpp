@@ -1,8 +1,8 @@
 #pragma once
 
-int* LowerBound(int* first, int* last, int val) {
+int *LowerBound(int *first, int *last, int val) {
   last--;
-  while (last - first > 0) {
+  while (first < last) {
     int middle = (last - first) / 2;
     if (*(first + middle) > val) {
       last = first + middle;
@@ -16,5 +16,5 @@ int* LowerBound(int* first, int* last, int val) {
       return first + middle;
     }
   }
-  return ++last;
+  return last;
 }
