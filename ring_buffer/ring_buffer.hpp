@@ -2,18 +2,18 @@
 
 #include <cstddef>
 
+struct Node {
+  int val;
+  Node* next;
+
+  explicit Node(int i) {
+    val = i;
+    next = nullptr;
+  }
+};
+
 class RingBuffer {
  public:
-  struct Node {
-    int val;
-    Node* next;
-
-    explicit Node(int i) {
-      val = i;
-      next = nullptr;
-    }
-  };
-
   size_t curr_size;
   size_t size;
   Node* first;
@@ -26,9 +26,13 @@ class RingBuffer {
     end = nullptr;
   }
 
-  size_t Size() const { return curr_size; }
+  size_t Size() const {
+    return curr_size;
+  }
 
-  bool Empty() const { return curr_size == 0; }
+  bool Empty() const {
+    return curr_size == 0;
+  }
 
   bool TryPush(int element) {
     if (curr_size == size) {
@@ -59,13 +63,13 @@ class RingBuffer {
   }
 
   ~RingBuffer() {
-    while (first != end) {
-      Node* temp = first;
-      first = first->next;
-      delete temp;
+    if (first != nullptr) {
+      while (first->next != nullptr) {
+        Node* temp = first;
+        first = first->next;
+        delete temp;
+      }
+      delete first;
     }
-    delete first;
-    first = nullptr;
-    end = nullptr;
   }
 };
