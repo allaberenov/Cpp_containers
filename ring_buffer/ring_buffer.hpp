@@ -31,7 +31,9 @@ class RingBuffer {
   bool Empty() const { return curr_size == 0; }
 
   bool TryPush(int element) {
-    if (curr_size == size) { return false; }
+    if (curr_size == size) {
+      return false;
+    }
     if (first == nullptr) {
       first = new Node(element);
       end = first;
@@ -45,7 +47,9 @@ class RingBuffer {
   }
 
   bool TryPop(int* element) {
-    if (Empty()) { return false; }
+    if (Empty()) {
+      return false;
+    }
     Node* temp = first;
     first = first->next;
     *element = temp->val;
