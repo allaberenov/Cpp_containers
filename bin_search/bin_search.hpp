@@ -1,18 +1,21 @@
 #pragma once
 
 int* LowerBound(int* first, int* last, int val) {
-  while (first < last - 1) {
-    int middle = ((last - 1) - first) / 2;
-    if (*(first + middle) > val) {
-      last = first + middle - 1;
+  last--;
+  int* begin = first;
+  int* end = last;
+  while (begin < end) {
+    int middle = (end - begin) / 2;
+    if (*(begin + middle) > val) {
+      end = begin + middle;
       continue;
     }
-    if (*(first + middle) < val) {
-      first = first + middle + 1;
+    if (*(begin + middle) < val) {
+      begin = begin + middle + 1;
       continue;
     }
-    if (*(first + middle) >= val) {
-      return first + middle;
+    if (*(begin + middle) >= val) {
+      return begin + middle;
     }
   }
   return last;
