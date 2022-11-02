@@ -8,7 +8,8 @@ class RingBuffer {
 public:
   struct Node {
     int val;
-    Node *next;
+    Node* next;
+
     explicit Node(int i) {
       val = i;
       next = nullptr;
@@ -17,8 +18,8 @@ public:
 
   size_t curr_size;
   size_t size;
-  Node *first;
-  Node *end;
+  Node* first;
+  Node* end;
 
   explicit RingBuffer(size_t capacity) {
     size = capacity;
@@ -51,11 +52,11 @@ public:
     return true;
   }
 
-  bool TryPop(int *element) {
+  bool TryPop(int* element) {
     if (Empty()) {
       return false;
     }
-    Node *temp = first;
+    Node* temp = first;
     first = first->next;
     *element = temp->val;
     delete temp;
