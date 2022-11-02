@@ -59,11 +59,13 @@ class RingBuffer {
   }
 
   ~RingBuffer() {
-    for (size_t i = 0; i < curr_size - 1; i++) {
+    while (first != end) {
       Node* temp = first;
       first = first->next;
       delete temp;
     }
     delete first;
+    first = nullptr;
+    end = nullptr;
   }
 };
