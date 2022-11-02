@@ -59,4 +59,10 @@ class RingBuffer {
     this->curr_size--;
     return true;
   }
+  ~RingBuffer() {
+    while (Empty()) {
+      int temp;
+      TryPop(&temp);
+    }
+  }
 };
