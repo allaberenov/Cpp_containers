@@ -2,8 +2,6 @@
 
 #include <cstddef>
 
-using namespace std;
-
 class RingBuffer {
  public:
   struct Node {
@@ -60,9 +58,11 @@ class RingBuffer {
     return true;
   }
   ~RingBuffer() {
-    while (Empty()) {
-      int temp;
-      TryPop(&temp);
+    for (int i = 0; i < curr_size - 1; i++) {
+      Node* temp = first;
+      first = first->next;
+      delete temp;
     }
+    delete first;
   }
 };
