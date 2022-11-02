@@ -1,6 +1,6 @@
 #pragma once
 
-int *LowerBound(int *first, int *last, int val) {
+int* LowerBound(int* first, int* last, int val) {
   while (first < last - 1) {
     int middle = ((last - 1) - first) / 2;
     if (*(first + middle) > val) {
