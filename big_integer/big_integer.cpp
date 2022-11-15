@@ -184,7 +184,7 @@ BigInt BigInt::operator*(BigInt big_int) {
   BigInt res("0");
   for (int i = 0, b = digits_[i] - '0'; i < int(digits_.size());
        i++, b = digits_[i] - '0') {
-    while (b-- >= 0) {
+    while (b-- > 0) {
       res = (res + big_int);
     }
     big_int.digits_.insert(big_int.digits_.begin(), '0');
