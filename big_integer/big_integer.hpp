@@ -1,6 +1,42 @@
-#pragma once
-#include <vector>
+
+#include <string>
 
 class BigInt {
-    /* Not Implemented */
+private:
+  int sign_;
+  std::string digits_;
+
+public:
+  BigInt();
+  BigInt(std::string);
+  BigInt(int64_t);
+
+  BigInt operator-();
+
+  BigInt& operator--();
+  BigInt& operator++();
+  BigInt operator++(int);
+  BigInt operator--(int);
+
+  BigInt Negative();
+  BigInt Normalize(size_t newSign);
+  static std::string Reverse(const std::string& str) ;
+  std::string toString() const;
+
+  BigInt& operator=(std::string&);
+  BigInt operator+(BigInt);
+  BigInt operator-(BigInt big_int);
+  BigInt operator*(BigInt big_int);
+  BigInt operator/(BigInt big_int);
+  BigInt operator%(BigInt big_int);
+
+  bool operator==(const BigInt&) const;
+  bool operator!=(const BigInt&) const;
+  bool operator<(const BigInt&) const;
+  bool operator<=(const BigInt&) const;
+  bool operator>(const BigInt&) const;
+  bool operator>=(const BigInt&) const;
+
+  friend std::ostream& operator<<(std::ostream&, const BigInt&);
+  friend std::istream& operator>>(std::istream&, BigInt&);
 };
