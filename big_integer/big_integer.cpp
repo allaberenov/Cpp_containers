@@ -108,7 +108,9 @@ bool BigInt::operator!=(const BigInt& big_int) const {
 }
 
 bool BigInt::operator<(const BigInt& big_int) const {
-  if (sign_ != big_int.sign_) { return sign_ < big_int.sign_; }
+  if (sign_ != big_int.sign_) {
+    return sign_ < big_int.sign_;
+  }
   if (digits_.size() != big_int.digits_.size()) {
     return (sign_ == 1 ? digits_.size() < big_int.digits_.size()
                        : digits_.size() > big_int.digits_.size());
@@ -138,7 +140,9 @@ bool BigInt::operator>=(const BigInt& big_int) const {
 
 BigInt BigInt::operator+(BigInt big_int) {
   BigInt curr = *this;
-  if (curr.sign_ != big_int.sign_) { return curr - big_int.Negative(); }
+  if (curr.sign_ != big_int.sign_) {
+    return curr - big_int.Negative();
+  }
   BigInt res;
   size_t carry = 0;
   for (size_t i = 0;
