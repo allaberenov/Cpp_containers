@@ -1,7 +1,7 @@
 #include "big_integer.hpp"
 #include <bits/stdc++.h>
 
-const int kten = 10;
+const int kKten = 10;
 
 BigInt::BigInt() : digits_("") {}
 BigInt::BigInt(std::string number) { *this = number; }
@@ -146,8 +146,8 @@ BigInt BigInt::operator+(BigInt big_int) {
   for (size_t i = 0; i < digits_.size() || i < big_int.digits_.size() || carry != 0; i++) {
     carry += (i < curr.digits_.size() ? curr.digits_[i] - '0' : 0) +
              (i < big_int.digits_.size() ? big_int.digits_[i] - '0' : 0);
-    res.digits_ += (carry % kten + '0');
-    carry /= kten;
+    res.digits_ += (carry % kKten + '0');
+    carry /= kKten;
   }
   return res.Normalize(sign_);
 }
@@ -164,7 +164,7 @@ BigInt BigInt::operator-(BigInt big_int) {
     if (borrow >= 0) {
       res.digits_ += borrow + '0';
     } else {
-      res.digits_ += borrow + '0' + kten;
+      res.digits_ += borrow + '0' + kKten;
     }
     borrow = (borrow >= 0 ? 0 : 1);
   }
