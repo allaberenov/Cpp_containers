@@ -182,7 +182,7 @@ BigInt BigInt::operator-(BigInt big_int) {
 
 BigInt BigInt::operator*(BigInt big_int) {
   BigInt res("0");
-  for (size_t i = 0, b = digits_[i] - '0'; i < digits_.size();
+  for (int i = 0, b = digits_[i] - '0'; i < int(digits_.size());
        i++, b = digits_[i] - '0') {
     while (b-- >= 0) {
       res = (res + big_int);
