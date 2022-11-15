@@ -1,9 +1,10 @@
 #include "big_integer.hpp"
 #include <bits/stdc++.h>
 
-BigInt::BigInt() : digits_("") {};
+BigInt::BigInt() : digits_("") {}
 BigInt::BigInt(std::string number) { *this = number; }
-BigInt::BigInt(int64_t number) { *this = std::to_string(number);
+BigInt::BigInt(int64_t number) {
+  *this = std::to_string(number);
 }
 
 std::ostream& operator<<(std::ostream& os, const BigInt& big_int) {
@@ -39,85 +40,87 @@ BigInt BigInt::operator-() {
 }
 
 BigInt BigInt::Negative() {
-  BigInt x = *this;
-  x.sign_ *= -1;
-  return x;
+  BigInt big_int = *this;
+  big_int.sign_ *= -1;
+  return big_int;
 }
 
 
 BigInt& BigInt::operator--() { return *this = *this - 1; }
 BigInt& BigInt::operator++() { return *this = *this + 1; }
 BigInt BigInt::operator++(int) {
-  BigInt cp(*this);
+  BigInt copy(*this);
   ++*this;
-  return cp;
+  return copy;
 }
 BigInt BigInt::operator--(int) {
-  BigInt cp(*this);
+  BigInt copy(*this);
   --*this;
-  return cp;
+  return copy;
 }
 
-BigInt BigInt::Normalize(size_t newSign) {
-  for (size_t i = digits_.size() - 1; i > 0 && digits_[i] == '0'; i--)
+BigInt BigInt::Normalize(size_t new_sign) {
+  for (size_t i = digits_.size() - 1; i > 0 && digits_[i] == '0'; i--) {
     digits_.erase(digits_.begin() + i);
+  }
   if (digits_.size() == 1 && digits_[0] == '0') {
     sign_ = 1;
   } else {
-    sign_ = newSign;
-  };
+    sign_ = new_sign;
+  }
   return *this;
 }
 
 std::string BigInt::Reverse(const std::string& str) {
-  std::string cp = str;
+  std::string copy = str;
   std::string res;
-  while (!cp.empty()) {
-    res.push_back(cp.back());
-    cp.pop_back();
+  while (!copy.empty()) {
+    res.push_back(copy.back());
+    copy.pop_back();
   }
   return res;
 }
 
 BigInt& BigInt::operator=(std::string& str) {
-  int newSign = 0;
+  int new_sign = 0;
   if (!str.empty()) {
     if (str[0] == '-') {
-      newSign = -1;
+      new_sign = -1;
     } else {
-      newSign = 1;
+      new_sign = 1;
     }
   }
-  if  (newSign == -1) {
+  if (new_sign == -1) {
     digits_ = str.substr(1);
   } else {
     digits_ = str;
   }
   digits_ = Reverse(digits_);
-  this->Normalize(newSign);
+  this->Normalize(new_sign);
   return *this;
 }
 
-bool BigInt::operator==(const BigInt& x) const {
-  return (digits_ == x.digits_ && sign_ == x.sign_);
+bool BigInt::operator==(const BigInt& big_int) const {
+  return (digits_ == big_int.digits_ && sign_ == big_int.sign_);
 }
 
 bool BigInt::operator!=(const BigInt& big_int) const {
   return !(*this == big_int);
 }
 
-bool BigInt::operator<(const BigInt& x) const {
-  if (sign_ != x.sign_) { return sign_ < x.sign_; }
-  if (digits_.size() != x.digits_.size()) {
-    return (sign_ == 1 ? digits_.size() < x.digits_.size() : digits_.size() > x.digits_.size());
+bool BigInt::operator<(const BigInt& big_int) const {
+  if (sign_ != big_int.sign_) { return sign_ < big_int.sign_; }
+  if (digits_.size() != big_int.digits_.size()) {
+    return (sign_ == 1 ? digits_.size() < big_int.digits_.size() : digits_.size() > big_int.digits_.size());
   }
-  for (int i = digits_.size() - 1; i >= 0; i--)
-    if (digits_[i] != x.digits_[i]) {
+  for (int i = digits_.size() - 1; i >= 0; i--) {
+    if (digits_[i] != big_int.digits_[i]) {
       if (sign_ == 1) {
-        return digits_[i] < x.digits_[i];
+        return digits_[i] < big_int.digits_[i];
       }
-      return digits_[i] > x.digits_[i];
+      return digits_[i] > big_int.digits_[i];
     }
+  }
   return false;
 }
 
@@ -138,9 +141,9 @@ BigInt BigInt::operator+(BigInt big_int) {
   if (curr.sign_ != big_int.sign_) { return curr - big_int.Negative(); }
   BigInt res;
   size_t carry = 0;
-  for (size_t a = 0; a < digits_.size() || a < big_int.digits_.size() || carry; a++) {
-    carry += (a < curr.digits_.size() ? curr.digits_[a] - '0' : 0) +
-             (a < big_int.digits_.size() ? big_int.digits_[a] - '0' : 0);
+  for (size_t i = 0; i < digits_.size() || i < big_int.digits_.size() || carry != 0; i++) {
+    carry += (i < curr.digits_.size() ? curr.digits_[i] - '0' : 0) +
+             (i < big_int.digits_.size() ? big_int.digits_[i] - '0' : 0);
     res.digits_ += (carry % 10 + '0');
     carry /= 10;
   }
@@ -149,10 +152,10 @@ BigInt BigInt::operator+(BigInt big_int) {
 
 BigInt BigInt::operator-(BigInt big_int) {
   BigInt curr = *this;
-  if (curr.sign_ != big_int.sign_) return curr + big_int.Negative();
-  size_t realSign = curr.sign_;
+  if (curr.sign_ != big_int.sign_) { return curr + big_int.Negative(); }
+  size_t real_sign = curr.sign_;
   curr.sign_ = big_int.sign_ = 1;
-  if (curr < big_int) return ((big_int - curr).Negative()).Normalize(-realSign);
+  if (curr < big_int) { return ((big_int - curr).Negative()).Normalize(-real_sign); }
   BigInt res;
   for (int i = 0, borrow = 0; i < int(digits_.size()); i++) {
     borrow = (curr.digits_[i] - borrow - (i < int(big_int.digits_.size()) ? big_int.digits_[i] : '0'));
@@ -163,45 +166,48 @@ BigInt BigInt::operator-(BigInt big_int) {
     }
     borrow = (borrow >= 0 ? 0 : 1);
   }
-  return res.Normalize(realSign);
+  return res.Normalize(real_sign);
 }
 
 BigInt BigInt::operator*(BigInt big_int) {
   BigInt res("0");
-  for (size_t a = 0, b = digits_[a] - '0'; a < digits_.size(); a++, b = digits_[a] - '0') {
-    while (b--) res = (res + big_int);
+  for (size_t i = 0, b = digits_[i] - '0'; i < digits_.size(); i++, b = digits_[i] - '0') {
+    while (b-- >= 0) { res = (res + big_int); }
     big_int.digits_.insert(big_int.digits_.begin(), '0');
   }
   return res.Normalize(sign_ * big_int.sign_);
 }
 
 BigInt BigInt::operator/(BigInt big_int) {
-  if (big_int.digits_.size() == 1 && big_int.digits_[0] == '0')
+  if (big_int.digits_.size() == 1 && big_int.digits_[0] == '0') {
     big_int.digits_[0] /= (big_int.digits_[0] - '0');
-  BigInt temp("0"), res;
-  for (size_t a = 0; a < digits_.size(); a++) res.digits_ += "0";
-  size_t newSign = sign_ * big_int.sign_;
+  }
+  BigInt temp("0");
+  BigInt res;
+  for (size_t i = 0; i < digits_.size(); i++) { res.digits_ += "0"; }
+  size_t new_sign = sign_ * big_int.sign_;
   big_int.sign_ = 1;
-  for (int a = digits_.size() - 1; a >= 0; a--) {
+  for (int i = digits_.size() - 1; i >= 0; i--) {
     temp.digits_.insert(temp.digits_.begin(), '0');
-    temp = temp + digits_.substr(a, 1);
+    temp = temp + digits_.substr(i, 1);
     while (!(temp < big_int)) {
       temp = temp - big_int;
-      res.digits_[a]++;
+      res.digits_[i]++;
     }
   }
-  return res.Normalize(newSign);
+  return res.Normalize(new_sign);
 }
 
 BigInt BigInt::operator%(BigInt big_int) {
-  if (big_int.digits_.size() == 1 && big_int.digits_[0] == '0')
+  if (big_int.digits_.size() == 1 && big_int.digits_[0] == '0') {
     big_int.digits_[0] /= char(big_int.digits_[0] - '0');
+  }
   BigInt res("0");
   big_int.sign_ = 1;
-  for (int a = digits_.size() - 1; a >= 0; a--) {
+  for (int i = digits_.size() - 1; i >= 0; i--) {
     res.digits_.insert(res.digits_.begin(), '0');
-    res = res + digits_.substr(a, 1);
-    while (!(res < big_int)) res = res - big_int;
+    res = res + digits_.substr(i, 1);
+    while (!(res < big_int)) { res = res - big_int; }
   }
   return res.Normalize(sign_);
 }

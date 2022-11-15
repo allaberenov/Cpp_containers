@@ -19,7 +19,7 @@ public:
   BigInt operator--(int);
 
   BigInt Negative();
-  BigInt Normalize(size_t newSign);
+  BigInt Normalize(size_t new_sign);
   static std::string Reverse(const std::string& str) ;
   std::string ToString() const;
 
