@@ -5,9 +5,7 @@ const int kKten = 10;
 
 BigInt::BigInt() : digits_("") {}
 BigInt::BigInt(std::string number) { *this = number; }
-BigInt::BigInt(int64_t number) {
-  *this = std::to_string(number);
-}
+BigInt::BigInt(int64_t number) { *this = std::to_string(number); }
 
 std::ostream& operator<<(std::ostream& os, const BigInt& big_int) {
   if (big_int.sign_ < 0) {
@@ -46,7 +44,6 @@ BigInt BigInt::Negative() {
   big_int.sign_ *= -1;
   return big_int;
 }
-
 
 BigInt& BigInt::operator--() { return *this = *this - 1; }
 BigInt& BigInt::operator++() { return *this = *this + 1; }
@@ -113,7 +110,8 @@ bool BigInt::operator!=(const BigInt& big_int) const {
 bool BigInt::operator<(const BigInt& big_int) const {
   if (sign_ != big_int.sign_) { return sign_ < big_int.sign_; }
   if (digits_.size() != big_int.digits_.size()) {
-    return (sign_ == 1 ? digits_.size() < big_int.digits_.size() : digits_.size() > big_int.digits_.size());
+    return (sign_ == 1 ? digits_.size() < big_int.digits_.size()
+                       : digits_.size() > big_int.digits_.size());
   }
   for (int i = digits_.size() - 1; i >= 0; i--) {
     if (digits_[i] != big_int.digits_[i]) {
@@ -143,7 +141,8 @@ BigInt BigInt::operator+(BigInt big_int) {
   if (curr.sign_ != big_int.sign_) { return curr - big_int.Negative(); }
   BigInt res;
   size_t carry = 0;
-  for (size_t i = 0; i < digits_.size() || i < big_int.digits_.size() || carry != 0; i++) {
+  for (size_t i = 0;
+       i < digits_.size() || i < big_int.digits_.size() || carry != 0; i++) {
     carry += (i < curr.digits_.size() ? curr.digits_[i] - '0' : 0) +
              (i < big_int.digits_.size() ? big_int.digits_[i] - '0' : 0);
     res.digits_ += (carry % kKten + '0');
@@ -154,13 +153,18 @@ BigInt BigInt::operator+(BigInt big_int) {
 
 BigInt BigInt::operator-(BigInt big_int) {
   BigInt curr = *this;
-  if (curr.sign_ != big_int.sign_) { return curr + big_int.Negative(); }
+  if (curr.sign_ != big_int.sign_) {
+    return curr + big_int.Negative();
+  }
   size_t real_sign = curr.sign_;
   curr.sign_ = big_int.sign_ = 1;
-  if (curr < big_int) { return ((big_int - curr).Negative()).Normalize(-real_sign); }
+  if (curr < big_int) {
+    return ((big_int - curr).Negative()).Normalize(-real_sign);
+  }
   BigInt res;
   for (int i = 0, borrow = 0; i < int(digits_.size()); i++) {
-    borrow = (curr.digits_[i] - borrow - (i < int(big_int.digits_.size()) ? big_int.digits_[i] : '0'));
+    borrow = (curr.digits_[i] - borrow -
+              (i < int(big_int.digits_.size()) ? big_int.digits_[i] : '0'));
     if (borrow >= 0) {
       res.digits_ += borrow + '0';
     } else {
@@ -173,8 +177,11 @@ BigInt BigInt::operator-(BigInt big_int) {
 
 BigInt BigInt::operator*(BigInt big_int) {
   BigInt res("0");
-  for (size_t i = 0, b = digits_[i] - '0'; i < digits_.size(); i++, b = digits_[i] - '0') {
-    while (b-- >= 0) { res = (res + big_int); }
+  for (size_t i = 0, b = digits_[i] - '0'; i < digits_.size();
+       i++, b = digits_[i] - '0') {
+    while (b-- >= 0) {
+      res = (res + big_int);
+    }
     big_int.digits_.insert(big_int.digits_.begin(), '0');
   }
   return res.Normalize(sign_ * big_int.sign_);
@@ -186,7 +193,9 @@ BigInt BigInt::operator/(BigInt big_int) {
   }
   BigInt temp("0");
   BigInt res;
-  for (size_t i = 0; i < digits_.size(); i++) { res.digits_ += "0"; }
+  for (size_t i = 0; i < digits_.size(); i++) {
+    res.digits_ += "0";
+  }
   size_t new_sign = sign_ * big_int.sign_;
   big_int.sign_ = 1;
   for (int i = digits_.size() - 1; i >= 0; i--) {
@@ -209,7 +218,9 @@ BigInt BigInt::operator%(BigInt big_int) {
   for (int i = digits_.size() - 1; i >= 0; i--) {
     res.digits_.insert(res.digits_.begin(), '0');
     res = res + digits_.substr(i, 1);
-    while (!(res < big_int)) { res = res - big_int; }
+    while (!(res < big_int)) {
+      res = res - big_int;
+    }
   }
   return res.Normalize(sign_);
 }

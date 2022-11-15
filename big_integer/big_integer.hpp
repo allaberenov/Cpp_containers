@@ -2,11 +2,11 @@
 #include <string>
 
 class BigInt {
-private:
+ private:
   int sign_;
   std::string digits_;
 
-public:
+ public:
   BigInt();
   BigInt(std::string);
   BigInt(int64_t);
@@ -20,7 +20,7 @@ public:
 
   BigInt Negative();
   BigInt Normalize(size_t new_sign);
-  static std::string Reverse(const std::string& str) ;
+  static std::string Reverse(const std::string& str);
   std::string ToString() const;
 
   BigInt& operator=(std::string&);
