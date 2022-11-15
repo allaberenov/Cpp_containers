@@ -21,7 +21,7 @@ public:
   BigInt Negative();
   BigInt Normalize(size_t newSign);
   static std::string Reverse(const std::string& str) ;
-  std::string toString() const;
+  std::string ToString() const;
 
   BigInt& operator=(std::string&);
   BigInt operator+(BigInt);

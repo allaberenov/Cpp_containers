@@ -206,7 +206,7 @@ BigInt BigInt::operator%(BigInt big_int) {
   return res.Normalize(sign_);
 }
 
-std::string BigInt::toString() const {
+std::string BigInt::ToString() const {
   std::string ret = Reverse(digits_);
   return (sign_ == -1 ? "-" : "") + ret;
 }
