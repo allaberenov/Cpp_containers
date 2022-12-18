@@ -7,26 +7,26 @@
 template <size_t N, size_t M, typename T = int64_t>
 class Matrix {
  private:
-  std::vector<std::vector<T>> _matrix;
+  std::vector<std::vector<T>> matrix_;
 
  public:
   explicit Matrix();
-  explicit Matrix(const std::vector<std::vector<T>>&);
-  Matrix(T);
+  explicit Matrix(const std::vector<std::vector<T>>& /*arr*/);
+  Matrix(T /*val*/);
 
-  Matrix& operator+=(const Matrix&);
-  Matrix& operator-=(const Matrix&);
+  Matrix& operator+=(const Matrix& /*matrix*/);
+  Matrix& operator-=(const Matrix& /*matrix*/);
 
   template <size_t K>
-  Matrix<N, K, T> operator*=(const Matrix<M, K, T>&);
-  Matrix& operator*=(const T&);
+  Matrix<N, K, T> operator*=(const Matrix<M, K, T>& /*matrix*/);
+  Matrix& operator*=(const T& /*val*/);
 
   T Trace();
 
-  T& operator()(const size_t&, const size_t&);
-  const T& operator()(const size_t&, const size_t&) const;
-  bool operator==(const Matrix&);
-  bool operator!=(const Matrix&);
+  T& operator()(const size_t& /*line*/, const size_t& /*row*/);
+  const T& operator()(const size_t& /*first*/, const size_t& /*second*/) const;
+  bool operator==(const Matrix& /*matrix*/);
+  bool operator!=(const Matrix& /*matrix*/);
 
   Matrix<M, N, T> Transposed();
 };
@@ -37,7 +37,7 @@ Matrix<N, K, T> Matrix<N, M, T>::operator*=(const Matrix<M, K, T>& matrix) {
   for (size_t k = 0; k < K; ++k) {
     for (size_t i = 0; i < N; ++i) {
       for (size_t j = 0; j < M; ++j) {
-        result(i, k) += this->_matrix[i][j] * matrix(j, k);
+        result(i, k) += this->matrix_[i][j] * matrix(j, k);
       }
     }
   }
@@ -48,7 +48,7 @@ template <size_t N, size_t M, typename T>
 T Matrix<N, M, T>::Trace() {
   T res = 0;
   for (size_t i = 0; i < N; ++i) {
-    res += _matrix[i][i];
+    res += matrix_[i][i];
   }
   return res;
 }
@@ -58,7 +58,7 @@ Matrix<M, N, T> Matrix<N, M, T>::Transposed() {
   Matrix<M, N, T> res;
   for (size_t i = 0; i < N; ++i) {
     for (size_t j = 0; j < M; ++j) {
-      res(j, i) = _matrix[i][j];
+      res(j, i) = matrix_[i][j];
     }
   }
   return res;
@@ -68,7 +68,7 @@ template <size_t N, size_t M, typename T>
 Matrix<N, M, T>& Matrix<N, M, T>::operator*=(const T& val) {
   for (size_t i = 0; i < N; ++i) {
     for (size_t j = 0; j < M; ++j) {
-      _matrix[i][j] *= val;
+      matrix_[i][j] *= val;
     }
   }
   return *this;
@@ -105,7 +105,7 @@ template <size_t N, size_t M, typename T>
 Matrix<N, M, T>& Matrix<N, M, T>::operator+=(const Matrix& matrix) {
   for (size_t i = 0; i < N; ++i) {
     for (size_t j = 0; j < M; ++j) {
-      this->_matrix[i][j] += matrix._matrix[i][j];
+      this->matrix_[i][j] += matrix.matrix_[i][j];
     }
   }
   return *this;
@@ -115,7 +115,7 @@ template <size_t N, size_t M, typename T>
 Matrix<N, M, T>& Matrix<N, M, T>::operator-=(const Matrix& matrix) {
   for (size_t i = 0; i < N; ++i) {
     for (size_t j = 0; j < M; ++j) {
-      this->_matrix[i][j] -= matrix._matrix[i][j];
+      this->matrix_[i][j] -= matrix.matrix_[i][j];
     }
   }
   return *this;
@@ -124,7 +124,7 @@ Matrix<N, M, T>& Matrix<N, M, T>::operator-=(const Matrix& matrix) {
 template <size_t N, size_t M, typename T>
 const T& Matrix<N, M, T>::operator()(const size_t& first,
                                      const size_t& second) const {
-  return _matrix[first][second];
+  return matrix_[first][second];
 }
 
 template <size_t N, size_t M, typename T>
@@ -135,7 +135,7 @@ template <size_t N, size_t M, typename T>
 bool Matrix<N, M, T>::operator==(const Matrix& matrix) {
   if (M == matrix._width && M == matrix.height) {
     for (size_t i = 0; i < N; ++i) {
-      if (_matrix[i] != matrix[i]) {
+      if (matrix_[i] != matrix[i]) {
         return false;
       }
     }
@@ -146,29 +146,29 @@ bool Matrix<N, M, T>::operator==(const Matrix& matrix) {
 
 template <size_t N, size_t M, typename T>
 T& Matrix<N, M, T>::operator()(const size_t& line, const size_t& row) {
-  return _matrix[line][row];
+  return matrix_[line][row];
 }
 
 template <size_t N, size_t M, typename T>
 Matrix<N, M, T>::Matrix(T val) {
-  _matrix.resize(N);
+  matrix_.resize(N);
   for (size_t i = 0; i < N; ++i) {
-    _matrix[i].resize(M);
+    matrix_[i].resize(M);
     for (size_t j = 0; j < M; ++j) {
-      _matrix[i][j] = val;
+      matrix_[i][j] = val;
     }
   }
 }
 
 template <size_t N, size_t M, typename T>
 Matrix<N, M, T>::Matrix(const std::vector<std::vector<T>>& arr) {
-  _matrix = arr;
+  matrix_ = arr;
 }
 
 template <size_t N, size_t M, typename T>
 Matrix<N, M, T>::Matrix() {
-  _matrix.resize(N);
-  for (size_t i = 0; i < _matrix.size(); ++i) {
-    _matrix[i].resize(M, 0);
+  matrix_.resize(N);
+  for (size_t i = 0; i < matrix_.size(); ++i) {
+    matrix_[i].resize(M, 0);
   }
 }
