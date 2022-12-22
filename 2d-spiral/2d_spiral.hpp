@@ -1,22 +1,40 @@
 int** MakeSpiral(int n) {
-  int** a = new int*[n];
+  int** arr = new int*[n];
   for (int i = 0; i < n; i++) {
-    a[i] = new int[n];
+    arr[i] = new int[n];
   }
-  int counter = 0;
-  for (int i = 0; i < n; i++) {
-    for (int j = i; j < n - i - 1; j++) {
-      a[i][j] = ++counter;
+  int i, k = 0, l = 0;
+  int m = n;
+  /*  k - starting row index
+      m - ending row index
+      l - starting column index
+      n - ending column index
+      i - iterator
+  */
+  int count = 0;
+  while (k < m && l < n) {
+    for (i = l; i < n; ++i) {
+      arr[k][i] = ++i;
     }
-    for (int j = i; j < n - i - 1; j++) {
-      a[j][n - i - 1] = ++counter;
+    k++;
+
+    for (i = k; i < m; ++i) {
+      arr[i][n - 1] = ++count;
     }
-    for (int j = n - i - 1; j >= i; j--) {
-      a[n - i - 1][j] = ++counter;
+    n--;
+    if (k < m) {
+      for (i = n - 1; i >= l; --i) {
+        arr[m - 1][i] = ++count;
+      }
+      m--;
     }
-    for (int j = n - i - 2; j > i; j--) {
-      a[j][i] = ++counter;
+
+    if (l < n) {
+      for (i = m - 1; i >= k; --i) {
+        arr[i][l] = ++count;
+      }
+      l++;
     }
   }
-  return a;
+  return arr;
 }
