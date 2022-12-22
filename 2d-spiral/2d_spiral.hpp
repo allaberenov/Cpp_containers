@@ -1,36 +1,24 @@
-int** MakeSpiral(int end_col) {
-  int** arr = new int*[end_col];
-  for (int i = 0; i < end_col; i++) {
-    arr[i] = new int[end_col];
+int** MakeSpiral(int n) {
+  int** arr = new int*[n];
+  for (int i = 0; i < n; i++) {
+    arr[i] = new int[n];
   }
+  int counter = 0;
   int iterator = 0;
-  int start_row = 0;
-  int start_col = 0;
-  int end_row = end_col;
-  int count = 0;
-  while (start_row < end_row && start_col < end_col) {
-    for (iterator = start_col; iterator < end_col; ++iterator) {
-      arr[start_row][iterator] = ++iterator;
+  while (iterator < n) {
+    for (int j = iterator; j < n - iterator - 1; ++j) {
+      arr[iterator][j] = ++counter;
     }
-    start_row++;
-
-    for (iterator = start_row; iterator < end_row; ++iterator) {
-      arr[iterator][end_col - 1] = ++count;
+    for (int j = iterator; j < n - iterator - 1; ++j) {
+      arr[j][n - iterator - 1] = ++counter;
     }
-    end_col--;
-    if (start_row < end_row) {
-      for (iterator = end_col - 1; iterator >= start_col; --iterator) {
-        arr[end_row - 1][iterator] = ++count;
-      }
-      end_row--;
+    for (int j = n - iterator - 1; j >= iterator; --j) {
+      arr[n - iterator - 1][j] = ++counter;
     }
-
-    if (start_col < end_col) {
-      for (iterator = end_row - 1; iterator >= start_row; --iterator) {
-        arr[iterator][start_col] = ++count;
-      }
-      start_col++;
+    for (int j = n - iterator - 2; j > iterator; --j) {
+      arr[j][iterator] = ++counter;
     }
+    ++iterator;
   }
   return arr;
 }
