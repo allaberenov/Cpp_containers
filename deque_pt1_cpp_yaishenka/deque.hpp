@@ -62,13 +62,18 @@ Deque<T>::~Deque() {
 
 template <typename T>
 Deque<T>::Deque(const Deque& deque) {
-  chunks.resize(deque.chunk_size(), reinterpret_cast<T*>(new char[sizeof(T) * CHUNK_SIZE]));
-  free_place.resize(deque.chunk_size(), CHUNK_SIZE);
-  for (size_t i = 0, j = 0; i < deque.size(); ++i, ++j) {
-    new (chunks[i / CHUNK_SIZE] + i % CHUNK_SIZE) T(deque[i]);
-    --free_place[i / CHUNK_SIZE];
+  if (!deque.empty()) {
+    chunks.resize(deque.chunk_size(),
+                  reinterpret_cast<T*>(new char[sizeof(T) * CHUNK_SIZE]));
+    free_place.resize(deque.chunk_size(), CHUNK_SIZE);
+    for (size_t i = 0, j = 0; i < deque.size(); ++i, ++j) {
+      new (chunks[i / CHUNK_SIZE] + i % CHUNK_SIZE) T(deque[i]);
+      --free_place[i / CHUNK_SIZE];
+    }
+    deque_size = deque.size();
+  } else {
+    deque_size = 0;
   }
-  deque_size = deque.size();
 }
 
 template <typename T>
@@ -110,7 +115,7 @@ bool Deque<T>::empty() const {
 template <typename T>
 const T& Deque<T>::operator[](size_t i) const {
   return *reinterpret_cast<T*>(chunks[i / CHUNK_SIZE] +
-                               (i % CHUNK_SIZE) * sizeof(T));
+                               (i % CHUNK_SIZE));
 }
 
 template <typename T>
@@ -219,7 +224,8 @@ Deque<T>& Deque<T>::operator=(const Deque& deque) {
   free_place.resize(deque.chunk_size(), CHUNK_SIZE);
   deque_size = deque.size();
   for (size_t i = 0; i < deque.size(); ++i) {
-    new (chunks[i / CHUNK_SIZE] + i % CHUNK_SIZE) T(deque[i]);
+    T* ptr = chunks[i / CHUNK_SIZE] + (i % CHUNK_SIZE);
+    new (chunks[i / CHUNK_SIZE] + (i % CHUNK_SIZE)) T(deque[i]);
     ++free_place[i / CHUNK_SIZE];
   }
   return *this;

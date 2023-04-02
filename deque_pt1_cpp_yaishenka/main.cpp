@@ -5,7 +5,7 @@ int main() {
   Deque<std::string> deque(10, "Kerim");
   Deque<int> first(5, 4);
   Deque<int> second(10, 9);
-  first = second;
+  second = first;
   for (size_t i = 0; i < deque.size(); ++i) {
     std::cout << deque[i] << '\t';
   }
