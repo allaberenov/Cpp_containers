@@ -2,11 +2,20 @@
 #include "iostream"
 
 int main() {
-  Deque<int> deque(7, 4);
-  Deque<int> first(10, 10);
-  Deque<int> second(9, 9);
-  deque = first;
+  Deque<std::string> deque(10, "Kerim");
+  Deque<int> first(5, 4);
+  Deque<int> second(10, 9);
+  first = second;
   for (size_t i = 0; i < deque.size(); ++i) {
     std::cout << deque[i] << '\t';
   }
+  std::cout << '\n';
+  for (size_t i = 0; i < first.size(); ++i) {
+    std::cout << first[i] << '\t';
+  }
+  std::cout << '\n';
+  for (size_t i = 0; i < second.size(); ++i) {
+    std::cout << second[i] << '\t';
+  }
+  std::cout << '\n';
 }

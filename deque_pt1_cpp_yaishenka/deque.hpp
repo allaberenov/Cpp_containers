@@ -12,10 +12,10 @@ class Deque {
   Deque(size_t count, const T& value);
   ~Deque();
 
-  Deque& operator=(const Deque& other);
-  T operator[](size_t i) const;
+  Deque& operator=(const Deque& deque);
+  const T& operator[](size_t i) const;
   T& operator[](size_t i);
-  T at(size_t) const;
+  const T& at(size_t) const;
   T& at(size_t);
 
   [[nodiscard]] size_t size() const;
@@ -48,8 +48,12 @@ template <typename T>
 Deque<T>::~Deque() {
   if (!this->empty()) {
     for (size_t i = 0; i < size(); ++i) {
-      reinterpret_cast<T*>(chunks[i / CHUNK_SIZE] + (i % CHUNK_SIZE)*sizeof(T))->~T();
+      reinterpret_cast<T*>(chunks[i / CHUNK_SIZE] +
+                           (i % CHUNK_SIZE))->~T();
     }
+  }
+  for (size_t i = 0; i < chunk_size(); ++i) {
+    delete[] reinterpret_cast<char*>(chunks[i]);
   }
   chunks.clear();
   free_place.clear();
@@ -58,11 +62,10 @@ Deque<T>::~Deque() {
 
 template <typename T>
 Deque<T>::Deque(const Deque& deque) {
-  chunks.resize(deque.chunk_size());
+  chunks.resize(deque.chunk_size(), reinterpret_cast<T*>(new char[sizeof(T) * CHUNK_SIZE]));
   free_place.resize(deque.chunk_size(), CHUNK_SIZE);
   for (size_t i = 0, j = 0; i < deque.size(); ++i, ++j) {
-    T* ptr = reinterpret_cast<T*>(chunks[i / CHUNK_SIZE] + (i % CHUNK_SIZE)*sizeof(T));
-    ptr = new T(deque[i]);
+    new (chunks[i / CHUNK_SIZE] + i % CHUNK_SIZE) T(deque[i]);
     --free_place[i / CHUNK_SIZE];
   }
   deque_size = deque.size();
@@ -71,11 +74,10 @@ Deque<T>::Deque(const Deque& deque) {
 template <typename T>
 Deque<T>::Deque(size_t count) {
   size_t chunks_size = count / CHUNK_SIZE + !!(count % CHUNK_SIZE);
-  chunks.resize(chunks_size);
+  chunks.resize(chunks_size, reinterpret_cast<T*>(new char[sizeof(T) * CHUNK_SIZE]));
   free_place.resize(chunk_size(), CHUNK_SIZE);
-  for (size_t i = 0, j = 0; i < count; ++i, ++j) {
-    T* ptr = reinterpret_cast<T*>(chunks[i / CHUNK_SIZE] + (i % CHUNK_SIZE)*sizeof(T));
-    ptr = new T();
+  for (size_t i = 0; i < count; ++i) {
+    new (chunks[i / CHUNK_SIZE] + i % CHUNK_SIZE) T();
     --free_place[i / CHUNK_SIZE];
   }
   deque_size = count;
@@ -83,14 +85,14 @@ Deque<T>::Deque(size_t count) {
 
 template <typename T>
 Deque<T>::Deque(size_t count, const T& value) {
-  chunks.resize(count / CHUNK_SIZE + !!(count % CHUNK_SIZE), nullptr);
+  chunks.resize(count / CHUNK_SIZE + !!(count % CHUNK_SIZE));
   free_place.resize(chunks.size(), CHUNK_SIZE);
   deque_size = count;
   for (size_t i = 0; i < chunks.size(); ++i) {
     chunks[i] = reinterpret_cast<T*>(new char[CHUNK_SIZE * sizeof(T)]);
   }
   for (size_t i = 0; i < count; ++i) {
-    *reinterpret_cast<T*>(chunks[i / CHUNK_SIZE] + (i % CHUNK_SIZE) * sizeof(T)) = value;
+    new (chunks[i / CHUNK_SIZE] + (i % CHUNK_SIZE)) T(value);
     free_place[i / CHUNK_SIZE]--;
   }
 }
@@ -106,13 +108,15 @@ bool Deque<T>::empty() const {
 }
 
 template <typename T>
-T Deque<T>::operator[](size_t i) const {
-  return *reinterpret_cast<T*>(chunks[i / CHUNK_SIZE] + (i % CHUNK_SIZE)*sizeof(T));
+const T& Deque<T>::operator[](size_t i) const {
+  return *reinterpret_cast<T*>(chunks[i / CHUNK_SIZE] +
+                               (i % CHUNK_SIZE) * sizeof(T));
 }
 
 template <typename T>
 T& Deque<T>::operator[](size_t i) {
-  return *reinterpret_cast<T*>(chunks[i / CHUNK_SIZE] + (i % CHUNK_SIZE)*sizeof(T));
+  return *reinterpret_cast<T*>(chunks[i / CHUNK_SIZE] +
+                               (i % CHUNK_SIZE));
 }
 
 template <typename T>
@@ -120,15 +124,18 @@ T& Deque<T>::at(size_t i) {
   if (i >= this->size()) {
     throw std::out_of_range("Out of range");
   }
-  return *reinterpret_cast<T*>(chunks[i / CHUNK_SIZE] + (i % CHUNK_SIZE)*sizeof(T));;
+  return *reinterpret_cast<T*>(chunks[i / CHUNK_SIZE] +
+                               (i % CHUNK_SIZE));
+  ;
 }
 
 template <typename T>
-T Deque<T>::at(size_t i) const {
+const T& Deque<T>::at(size_t i) const {
   if (i >= this->size()) {
     throw std::out_of_range("Out of range");
   }
-  return *reinterpret_cast<T*>(chunks[i / CHUNK_SIZE] + (i % CHUNK_SIZE)*sizeof(T));
+  return *reinterpret_cast<T*>(chunks[i / CHUNK_SIZE] +
+                               (i % CHUNK_SIZE));
 }
 
 template <typename T>
@@ -154,7 +161,9 @@ void Deque<T>::push_back(T arg) {
 
 template <typename T>
 void Deque<T>::pop_back() {
-  reinterpret_cast<T*>(chunks.back() + (CHUNK_SIZE - free_place.back()) * sizeof(T))->~T();
+  reinterpret_cast<T*>(chunks.back() +
+                       (CHUNK_SIZE - free_place.back()))
+      ->~T();
   if (free_place.back() == CHUNK_SIZE - 1) {
     delete[] reinterpret_cast<char*>(chunks.back());
     chunks.pop_back();
@@ -168,7 +177,7 @@ template <typename T>
 void Deque<T>::push_front(T arg) {
   if (free_place.front() == 0) {
     chunks.push_back(new char[CHUNK_SIZE * sizeof(T)]);
-    reinterpret_cast<T*>(chunks.front() + (CHUNK_SIZE - 1)*sizeof(T)) = arg;
+    reinterpret_cast<T*>(chunks.front() + (CHUNK_SIZE - 1)) = arg;
     free_place.push_back(CHUNK_SIZE);
     for (size_t i = chunk_size() - 1; i >= 1; --i) {
       std::swap(chunks[i], chunks[i - 1]);
@@ -182,7 +191,8 @@ void Deque<T>::push_front(T arg) {
 template <typename T>
 void Deque<T>::pop_front() {
   if (free_place.front() == CHUNK_SIZE - 1) {
-    reinterpret_cast<T*>(chunks.front() + (free_place.front() - 1) * sizeof(T))->~T();
+    reinterpret_cast<T*>(chunks.front() + (free_place.front() - 1))
+        ->~T();
     for (size_t i = 0; i <= chunk_size() - 2; ++i) {
       std::swap(chunks[i], chunks[i + 1]);
       std::swap(free_place[i], free_place[i + 1]);
@@ -193,14 +203,11 @@ void Deque<T>::pop_front() {
   }
 }
 
-/*template <typename T>
-Deque<T>::Deque()l*/
-
 template <typename T>
 Deque<T>& Deque<T>::operator=(const Deque& deque) {
   if (!this->empty()) {
     for (size_t i = 0; i < size(); ++i) {
-      reinterpret_cast<T*>(chunks[i / CHUNK_SIZE] + (i % CHUNK_SIZE) * sizeof(T))->~T();
+      reinterpret_cast<T*>(chunks[i / CHUNK_SIZE] + (i % CHUNK_SIZE))->~T();
     }
     for (auto& i : chunks) {
       delete[] i;
@@ -208,14 +215,11 @@ Deque<T>& Deque<T>::operator=(const Deque& deque) {
     chunks.clear();
     free_place.clear();
   }
-  chunks.resize(deque.chunk_size());
+  chunks.resize(deque.chunk_size(), reinterpret_cast<T*>(new char[CHUNK_SIZE * sizeof(T)]));
   free_place.resize(deque.chunk_size(), CHUNK_SIZE);
   deque_size = deque.size();
   for (size_t i = 0; i < deque.size(); ++i) {
-    if (i % CHUNK_SIZE == 0) {
-      chunks[i / CHUNK_SIZE] = reinterpret_cast<T*>(new char[CHUNK_SIZE * sizeof(T)]);
-    }
-    *reinterpret_cast<T*>(chunks[i / CHUNK_SIZE] + (i % CHUNK_SIZE)*sizeof(T)) = deque[i];
+    new (chunks[i / CHUNK_SIZE] + i % CHUNK_SIZE) T(deque[i]);
     ++free_place[i / CHUNK_SIZE];
   }
   return *this;
