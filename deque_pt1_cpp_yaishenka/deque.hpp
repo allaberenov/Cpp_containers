@@ -203,14 +203,14 @@ size_t Deque<T>::chunk_size() const {
 
 template <typename T>
 Deque<T>::~Deque() {
-  while (!this->empty()) {
+  while (!empty()) {
     pop_back();
   }
-  for (size_t i = 0; i < chunk_size(); ++i) {
-    delete[] chunks_[i];
+  for (auto p : chunks_) {
+    delete[] p;
   }
   chunks_.clear();
-  deque_size_ = 0;
+  head_index_ = head_chunk_ = 0;
 }
 
 template <typename T>
@@ -255,15 +255,20 @@ Deque<T>::Deque(size_t count) {
 template <typename T>
 Deque<T>::Deque(size_t count, const T& value) {
   size_t chunks_size = count / kChunkSize;
+  deque_size_ = 0;
   if (count % kChunkSize > 0) {
     ++chunks_size;
   }
-  chunks_.resize(chunks_size);
-  deque_size_ = count;
-  for (size_t i = 0; i < chunks_.size(); ++i) {
-    chunks_[i] = reinterpret_cast<T*>(new char[kChunkSize * sizeof(T)]);
+
+  T temp(value);
+  temp.~T();
+
+  for (size_t i = 0; i < chunks_size; ++i) {
+    chunks_.push_back(reinterpret_cast<T*>(new char[kChunkSize * sizeof(T)]));
   }
+
   for (size_t i = 0; i < count; ++i) {
+    ++deque_size_;
     new (chunks_[i / kChunkSize] + (i % kChunkSize)) T(value);
   }
   head_chunk_ = 0;
