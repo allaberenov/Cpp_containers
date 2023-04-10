@@ -206,8 +206,8 @@ Deque<T>::~Deque() {
   while (!empty()) {
     pop_back();
   }
-  for (auto p : chunks_) {
-    delete[] p;
+  for (auto item : chunks_) {
+    delete[] item;
   }
   chunks_.clear();
   head_index_ = head_chunk_ = 0;
