@@ -37,14 +37,16 @@ class Deque {
   }
 
   Iterator<true> cbegin() {
-    return Iterator<true>(head_chunk, head_index, this);
+    return Iterator<true>(head_chunk + head_index / CHUNK_SIZE, head_index % CHUNK_SIZE, this);
   }
 
   Iterator<false> end() {
     return Iterator<false>(tail_chunk + tail_index / CHUNK_SIZE, tail_index %  CHUNK_SIZE, this);
   }
 
-  Iterator<true> cend() { return Iterator<true>(tail_chunk, tail_index, this); }
+  Iterator<true> cend() {
+    return Iterator<true>(tail_chunk + tail_index / CHUNK_SIZE, tail_index %  CHUNK_SIZE, this);
+  }
 
   void insert(iterator iter, const T& arg) {
     T temp = arg;
@@ -308,7 +310,7 @@ void Deque<T>::push_back(const T& arg) {
     ++tail_chunk;
     tail_index = 0;
   }
-  chunks[tail_chunk][tail_index] = arg;
+  new (&chunks[tail_chunk][tail_index]) T(arg);
   ++tail_index;
   ++deque_size;
 }
@@ -317,9 +319,9 @@ template <typename T>
 void Deque<T>::pop_back() {
   if (tail_index == 0) {
     --tail_chunk;
-    tail_index = CHUNK_SIZE - 1;
+    tail_index = CHUNK_SIZE;
   }
-  chunks[tail_chunk][this->tail_index].~T();
+  chunks[tail_chunk][--this->tail_index].~T();
   if (tail_index == 0) {
     delete[] chunks[tail_chunk];
     chunks.pop_back();
