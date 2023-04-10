@@ -1,7 +1,7 @@
 #include <stdexcept>
 #include <vector>
 
-const size_t kChunkSize = 500;
+const size_t kChunkSize = 300;
 
 template <typename T>
 class Deque {
