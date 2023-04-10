@@ -235,8 +235,10 @@ Deque<T>::Deque(const Deque& deque) {
 
 template <typename T>
 Deque<T>::Deque(size_t count) {
-  size_t chunks_size =
-      count / kChunkSize + static_cast<unsigned long>(!!(count % kChunkSize));
+  size_t chunks_size = count / kChunkSize;
+  if (count % kChunkSize > 0) {
+    ++chunks_size;
+  }
   deque_size_ = count;
   for (size_t i = 0; i < chunks_size; ++i) {
     chunks_.push_back(reinterpret_cast<T*>(new char[sizeof(T) * kChunkSize]));
@@ -252,8 +254,11 @@ Deque<T>::Deque(size_t count) {
 
 template <typename T>
 Deque<T>::Deque(size_t count, const T& value) {
-  chunks_.resize(count / kChunkSize +
-                 static_cast<unsigned long>(!!(count % kChunkSize)));
+  size_t chunks_size = count / kChunkSize;
+  if (count % kChunkSize > 0) {
+    ++chunks_size;
+  }
+  chunks_.resize(chunks_size);
   deque_size_ = count;
   for (size_t i = 0; i < chunks_.size(); ++i) {
     chunks_[i] = reinterpret_cast<T*>(new char[kChunkSize * sizeof(T)]);
