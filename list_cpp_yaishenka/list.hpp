@@ -170,7 +170,8 @@ template <typename T, typename Allocator>
 List<T, Allocator>::List(const List& other) {
   head_ = tail_ = nullptr;
   size_ = 0;
-  alloc_ = node_alloc_traits::select_on_container_copy_construction(other.get_allocator());
+  alloc_ = node_alloc_traits::select_on_container_copy_construction(
+      other.get_allocator());
   try {
     for (const auto& iterator : other) {
       push_back(iterator);
@@ -183,7 +184,6 @@ List<T, Allocator>::List(const List& other) {
     throw;
   }
 }
-
 
 template <typename T, typename Allocator>
 List<T, Allocator>::List(std::initializer_list<T> init,
@@ -210,8 +210,8 @@ struct List<T, Alloc>::Iterator {
   Node* tail;
   size_t index;
 
-  explicit Iterator<IsConst>(Node* cur, Node* top = nullptr, Node* end = nullptr,
-                    size_t ind = 0) {
+  explicit Iterator<IsConst>(Node* cur, Node* top = nullptr,
+                             Node* end = nullptr, size_t ind = 0) {
     head = top;
     tail = end;
     current = cur;
