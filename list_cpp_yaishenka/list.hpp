@@ -22,9 +22,9 @@ class List {
   using const_reference = const value_type&;
   using pointer = value_type*;
   using const_pointer = const value_type*;
-  using AllocTraits = std::allocator_traits<allocator_type>;
-  using NodeAlloc = typename AllocTraits::template rebind_alloc<Node>;
-  using NodeAllocTraits = std::allocator_traits<NodeAlloc>;
+  using alloc_traits = std::allocator_traits<allocator_type>;
+  using node_alloc = typename alloc_traits::template rebind_alloc<Node>;
+  using node_alloc_traits = std::allocator_traits<node_alloc>;
 
   template <bool IsConst>
   struct Iterator;
@@ -36,7 +36,7 @@ class List {
   Node* head_;
   Node* tail_;
   size_t size_;
-  NodeAlloc alloc_;
+  node_alloc alloc_;
 
   void clear();
 
@@ -83,7 +83,7 @@ class List {
 
   bool empty() { return size_ == 0; }
 
-  size_t size() const { return size_; };
+  [[nodiscard]] size_t size() const { return size_; };
 
   void push_back(const T& /*arg*/);
 
@@ -117,12 +117,12 @@ List<T, Allocator>& List<T, Allocator>::operator=(const List& other) {
     return *this;
   }
   clear();
-  if (NodeAllocTraits::propagate_on_container_copy_assignment::value) {
+  if (node_alloc_traits::propagate_on_container_copy_assignment::value) {
     alloc_ = other.get_allocator();
   }
 
-  for (const auto& i : other) {
-    push_back(i);
+  for (const auto& iterator : other) {
+    push_back(iterator);
   }
   return *this;
 }
@@ -138,7 +138,7 @@ List<T, Allocator>::List(size_t count, const T& value, const Allocator& alloc) {
   head_ = tail_ = nullptr;
   size_ = 0;
   alloc_ = alloc;
-  for (size_t i = 0; i < count; ++i) {
+  for (size_t iterator = 0; iterator < count; ++iterator) {
     push_back(value);
   }
 }
@@ -156,7 +156,7 @@ List<T, Alloc>::List(size_t count, const Alloc& alloc) {
     alloc_ = alloc;
     head_ = tail_ = nullptr;
     size_ = 0;
-    for (size_t i = 0; i < count; ++i) {
+    for (size_t iterator = 0; iterator < count; ++iterator) {
       push_back();
     }
   } catch (...) {
@@ -170,14 +170,14 @@ template <typename T, typename Allocator>
 List<T, Allocator>::List(const List& other) {
   head_ = tail_ = nullptr;
   size_ = 0;
-  alloc_ = NodeAllocTraits::select_on_container_copy_construction(other.get_allocator());
+  alloc_ = node_alloc_traits::select_on_container_copy_construction(other.get_allocator());
   try {
-    for (const auto& i : other) {
-      push_back(i);
+    for (const auto& iterator : other) {
+      push_back(iterator);
     }
   } catch (...) {
     clear();
-    NodeAllocTraits::deallocate(alloc_, head_, 1);
+    node_alloc_traits::deallocate(alloc_, head_, 1);
     head_ = tail_ = nullptr;
     size_ = 0;
     throw;
@@ -191,8 +191,8 @@ List<T, Allocator>::List(std::initializer_list<T> init,
   alloc_ = alloc;
   head_ = tail_ = nullptr;
   size_ = 0;
-  for (const auto& i : init) {
-    push_back(i);
+  for (const auto& iterator : init) {
+    push_back(iterator);
   }
 }
 
@@ -210,7 +210,7 @@ struct List<T, Alloc>::Iterator {
   Node* tail;
   size_t index;
 
-  Iterator<IsConst>(Node* cur, Node* top = nullptr, Node* end = nullptr,
+  explicit Iterator<IsConst>(Node* cur, Node* top = nullptr, Node* end = nullptr,
                     size_t ind = 0) {
     head = top;
     tail = end;
@@ -360,8 +360,8 @@ template <typename T, typename Alloc>
 void List<T, Alloc>::push_back(const T& arg) {
   Node* new_node = nullptr;
   try {
-    new_node = NodeAllocTraits::allocate(alloc_, 1);
-    NodeAllocTraits::construct(alloc_, new_node, std::move(arg));
+    new_node = node_alloc_traits::allocate(alloc_, 1);
+    node_alloc_traits::construct(alloc_, new_node, std::move(arg));
     if (size() > 0) {
       tail_->next = new_node;
       new_node->prev = tail_;
@@ -372,8 +372,8 @@ void List<T, Alloc>::push_back(const T& arg) {
     }
     ++size_;
   } catch (...) {
-    NodeAllocTraits::destroy(alloc_, new_node);
-    NodeAllocTraits::deallocate(alloc_, new_node, 1);
+    node_alloc_traits::destroy(alloc_, new_node);
+    node_alloc_traits::deallocate(alloc_, new_node, 1);
   }
 }
 
@@ -381,8 +381,8 @@ template <typename T, typename Alloc>
 void List<T, Alloc>::push_back() {
   Node* new_node = nullptr;
   try {
-    new_node = NodeAllocTraits::allocate(alloc_, 1);
-    NodeAllocTraits::construct(alloc_, new_node);
+    new_node = node_alloc_traits::allocate(alloc_, 1);
+    node_alloc_traits::construct(alloc_, new_node);
     if (size() > 0) {
       tail_->next = new_node;
       new_node->prev = tail_;
@@ -392,15 +392,15 @@ void List<T, Alloc>::push_back() {
     }
     ++size_;
   } catch (...) {
-    NodeAllocTraits::destroy(alloc_, new_node);
-    NodeAllocTraits::deallocate(alloc_, new_node, 1);
+    node_alloc_traits::destroy(alloc_, new_node);
+    node_alloc_traits::deallocate(alloc_, new_node, 1);
   }
 }
 
 template <typename T, typename Alloc>
 void List<T, Alloc>::push_back(T&& arg) {
-  auto new_node = NodeAllocTraits::allocate(alloc_, 1);
-  NodeAllocTraits::construct(alloc_, new_node, arg);
+  auto new_node = node_alloc_traits::allocate(alloc_, 1);
+  node_alloc_traits::construct(alloc_, new_node, arg);
   if (size() > 0) {
     tail_->next = new_node;
     new_node->prev = tail_;
@@ -413,8 +413,8 @@ void List<T, Alloc>::push_back(T&& arg) {
 
 template <typename T, typename Alloc>
 void List<T, Alloc>::push_front(const T& arg) {
-  auto new_node = NodeAllocTraits::allocate(alloc_, 1);
-  NodeAllocTraits::construct(alloc_, new_node, arg);
+  auto new_node = node_alloc_traits::allocate(alloc_, 1);
+  node_alloc_traits::construct(alloc_, new_node, arg);
   if (size() > 0) {
     head_->prev = new_node;
     new_node->next = head_;
@@ -427,8 +427,8 @@ void List<T, Alloc>::push_front(const T& arg) {
 
 template <typename T, typename Alloc>
 void List<T, Alloc>::push_front(T&& arg) {
-  auto new_node = NodeAllocTraits::allocate(alloc_, 1);
-  NodeAllocTraits::construct(alloc_, new_node, arg);
+  auto new_node = node_alloc_traits::allocate(alloc_, 1);
+  node_alloc_traits::construct(alloc_, new_node, arg);
   if (size() > 0) {
     head_->prev = new_node;
     new_node->next = head_;
@@ -448,8 +448,8 @@ void List<T, Alloc>::pop_front() {
     head_ = head_->next;
     head_->prev = nullptr;
   }
-  NodeAllocTraits::destroy(alloc_, temp);
-  NodeAllocTraits::deallocate(alloc_, temp, 1);
+  node_alloc_traits::destroy(alloc_, temp);
+  node_alloc_traits::deallocate(alloc_, temp, 1);
   --size_;
 }
 
@@ -462,7 +462,7 @@ void List<T, Alloc>::pop_back() {
     tail_ = tail_->prev;
     tail_->next = nullptr;
   }
-  NodeAllocTraits::destroy(alloc_, temp);
-  NodeAllocTraits::deallocate(alloc_, temp, 1);
+  node_alloc_traits::destroy(alloc_, temp);
+  node_alloc_traits::deallocate(alloc_, temp, 1);
   --size_;
 }
